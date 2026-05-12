@@ -95,6 +95,13 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .identity-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .identity-kicker {
       font-size: 10px;
       letter-spacing: 0.16em;
@@ -127,6 +134,10 @@
     .ghost-btn:hover {
       transform: translateY(-1px);
       box-shadow: var(--shadow-md);
+    }
+
+    .ghost-btn.secondary {
+      background: var(--bg2);
     }
 
     .card {
@@ -464,7 +475,10 @@
         <div class="identity-kicker">current view</div>
         <div class="identity-name" id="identityName">loading...</div>
       </div>
-      <button class="ghost-btn" type="button" onclick="switchIdentity()">switch person</button>
+      <div class="identity-actions">
+        <button class="ghost-btn secondary" type="button" onclick="editNames()">edit names</button>
+        <button class="ghost-btn" type="button" onclick="switchIdentity()">switch person</button>
+      </div>
     </div>
 
     <div class="install-banner" id="installBanner">
@@ -585,10 +599,62 @@
       return "you"
     }
 
+    function initialsFrom(name, fallback) {
+      const clean = (name || "").trim()
+      if (!clean) return fallback
+      const parts = clean.split(/\s+/).filter(Boolean).slice(0, 2)
+      const letters = parts.map((part) => part[0]).join("").toUpperCase()
+      return letters || fallback
+    }
+
+    function applyStoredNames() {
+      try {
+        const stored = JSON.parse(localStorage.getItem("pulse_names") || "{}")
+        const youName = (stored.you || "").trim()
+        const herName = (stored.her || "").trim()
+
+        if (youName) {
+          USERS.you.name = youName
+          USERS.her.otherName = youName
+          USERS.you.initials = initialsFrom(youName, "Y")
+          USERS.her.otherInitials = USERS.you.initials
+        }
+
+        if (herName) {
+          USERS.her.name = herName
+          USERS.you.otherName = herName
+          USERS.her.initials = initialsFrom(herName, "L")
+          USERS.you.otherInitials = USERS.her.initials
+        }
+      } catch (error) {
+        console.error("could not load saved names", error)
+      }
+    }
+
     function switchIdentity() {
       const next = me === "you" ? "her" : "you"
       localStorage.setItem("pulse_identity", next)
       location.reload()
+    }
+
+    function editNames() {
+      const nextYou = prompt("Your name for the 'you' profile:", USERS.you.name)
+      if (nextYou === null) return
+
+      const nextHer = prompt("Name for the other profile:", USERS.her.name)
+      if (nextHer === null) return
+
+      const payload = {
+        you: nextYou.trim() || "You",
+        her: nextHer.trim() || "Lena",
+      }
+
+      localStorage.setItem("pulse_names", JSON.stringify(payload))
+      applyStoredNames()
+      setIdentityUI()
+      renderMine(myRow)
+      renderTheir(theirRow)
+      flash("names updated on this device")
     }
 
     function formatAgo(iso) {
@@ -798,6 +864,7 @@
     }
 
     async function init() {
+      applyStoredNames()
       me = whoAmI()
       setIdentityUI()
       maybeShowInstallBanner()
