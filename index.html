@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pulse</title>
+  <meta name="description" content="your shared signal" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f7f6f3;
+      --border: rgba(0,0,0,0.10);
+      --border2: rgba(0,0,0,0.18);
+      --text: #1a1a18;
+      --text2: #6b6a65;
+      --text3: #a8a79f;
+      --radius-md: 8px;
+      --radius-lg: 14px;
+      --radius-xl: 20px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1c1c1a;
+        --bg2: #252523;
+        --border: rgba(255,255,255,0.10);
+        --border2: rgba(255,255,255,0.18);
+        --text: #e8e6df;
+        --text2: #9a9890;
+        --text3: #5a5955;
+      }
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .app {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 3rem;
+    }
+
+    /* ── header ── */
+    .wordmark {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .wordmark h1 {
+      font-size: 28px;
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: var(--text);
+    }
+    .wordmark p {
+      font-size: 11px;
+      letter-spacing: 0.20em;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-top: 4px;
+    }
+
+    /* ── her card ── */
+    .her-card {
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.25rem;
+      margin-bottom: 2rem;
+      background: var(--bg);
+    }
+    .her-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #EEEDFE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      color: #3C3489;
+      flex-shrink: 0;
+    }
+    .her-name { font-size: 14px; font-weight: 500; color: var(--text); }
+    .her-time { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 13px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    .pill-recharge  { background: #E1F5EE; color: #085041; border: 0.5px solid #9FE1CB; }
+    .pill-here      { background: #EEEDFE; color: #26215C; border: 0.5px solid #AFA9EC; }
+    .pill-busy      { background: #FAEEDA; color: #412402; border: 0.5px solid #FAC775; }
+    .pill-slow      { background: #FBEAF0; color: #4B1528; border: 0.5px solid #ED93B1; }
+    .pill-offline   { background: var(--bg2); color: var(--text3); border: 0.5px solid var(--border); }
+
+    .her-note {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.6;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    .react-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .react-chip {
+      border: 0.5px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 13px;
+      font-size: 12px;
+      color: var(--text2);
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .react-chip:hover { background: var(--bg2); color: var(--text); border-color: var(--border2); }
+    .react-chip.sent { background: #E1F5EE; color: #085041; border-color: #9FE1CB; }
+
+    /* ── divider ── */
+    .divider-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+    .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+    .divider-text {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text3);
+      white-space: nowrap;
+    }
+
+    /* ── mood grid ── */
+    .moods {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 1.25rem;
+    }
+    .mood-btn {
+      border: 0.5px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 12px 12px;
+      cursor: pointer;
+      background: var(--bg);
+      text-align: left;
+      transition: border-color 0.15s, background 0.15s;
+      font-family: inherit;
+    }
+    .mood-btn:hover { border-color: var(--border2); }
+    .mood-glyph { font-size: 22px; display: block; margin-bottom: 7px; }
+    .mood-name { font-size: 13px; font-weight: 500; color: var(--text); display: block; }
+    .mood-sub  { font-size: 11px; color: var(--text3); display: block; margin-top: 3px; line-height: 1.4; }
+
+    .mood-btn.sel-recharge { border-color: #9FE1CB; background: #E1F5EE; }
+    .mood-btn.sel-recharge .mood-name { color: #085041; }
+    .mood-btn.sel-recharge .mood-sub  { color: #0F6E56; }
+
+    .mood-btn.sel-here { border-color: #AFA9EC; background: #EEEDFE; }
+    .mood-btn.sel-here .mood-name { color: #26215C; }
+    .mood-btn.sel-here .mood-sub  { color: #534AB7; }
+
+    .mood-btn.sel-busy { border-color: #FAC775; background: #FAEEDA; }
+    .mood-btn.sel-busy .mood-name { color: #412402; }
+    .mood-btn.sel-busy .mood-sub  { color: #854F0B; }
+
+    .mood-btn.sel-slow { border-color: #ED93B1; background: #FBEAF0; }
+    .mood-btn.sel-slow .mood-name { color: #4B1528; }
+    .mood-btn.sel-slow .mood-sub  { color: #993556; }
+
+    /* ── note ── */
+    .note-wrap { margin-bottom: 1.25rem; }
+    textarea {
+      width: 100%;
+      border: 0.5px solid var(--border);
+      border-radius: 14px;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      resize: none;
+      height: 72px;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+    textarea::placeholder { color: var(--text3); }
+    textarea:focus { outline: none; border-color: var(--border2); }
+
+    /* ── send btn ── */
+    .send-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: 14px;
+      background: var(--bg);
+      border: 0.5px solid var(--border2);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+    }
+    .send-btn:hover { background: var(--bg2); }
+    .send-btn:active { transform: scale(0.98); }
+
+    /* ── toast ── */
+    .toast {
+      margin-top: 1rem;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: #E1F5EE;
+      border: 0.5px solid #9FE1CB;
+      font-size: 12px;
+      color: #085041;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: all 0.3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ── install banner ── */
+    .install-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: var(--bg2);
+      margin-bottom: 1.5rem;
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.5;
+    }
+    .install-banner.show { display: flex; }
+    .install-banner strong { color: var(--text); font-weight: 500; }
+
+    /* ── loading overlay ── */
+    .loading {
+      text-align: center;
+      padding: 3rem 0;
+      font-size: 13px;
+      color: var(--text3);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <div class="wordmark">
+    <h1>pulse</h1>
+    <p>your shared signal</p>
+  </div>
+
+  <!-- iOS install nudge (shown only in Safari, not installed) -->
+  <div class="install-banner" id="installBanner">
+    <span style="font-size:20px;">⬆</span>
+    <div><strong>install pulse</strong> — tap the share icon then "Add to Home Screen" to get notifications</div>
+  </div>
+
+  <!-- Her status -->
+  <div class="her-card" id="herCard">
+    <div class="loading" id="herLoading">checking her signal…</div>
+    <div id="herContent" style="display:none;">
+      <div class="her-top">
+        <div class="avatar" id="herAvatar">L</div>
+        <div>
+          <div class="her-name" id="herName">Lena</div>
+          <div class="her-time" id="herTime">—</div>
+        </div>
+      </div>
+      <span class="status-pill" id="herPill"></span>
+      <p class="her-note" id="herNote" style="display:none;"></p>
+      <div class="react-row" id="reactRow">
+        <button class="react-chip" onclick="sendReact('💙 got it')">💙 got it</button>
+        <button class="react-chip" onclick="sendReact('no rush')">no rush</button>
+        <button class="react-chip" onclick="sendReact('take your time')">take your time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Your status -->
+  <div class="divider-label">
+    <div class="divider-line"></div>
+    <span class="divider-text">your status</span>
+    <div class="divider-line"></div>
+  </div>
+
+  <div class="moods" id="moodGrid">
+    <button class="mood-btn" data-key="recharge" data-emoji="🌿" data-label="recharging" onclick="pick(this)">
+      <span class="mood-glyph">🌿</span>
+      <span class="mood-name">recharging</span>
+      <span class="mood-sub">need quiet, low input</span>
+    </button>
+    <button class="mood-btn" data-key="here" data-emoji="✨" data-label="here for it" onclick="pick(this)">
+      <span class="mood-glyph">✨</span>
+      <span class="mood-name">here for it</span>
+      <span class="mood-sub">open, ready to connect</span>
+    </button>
+    <button class="mood-btn" data-key="busy" data-emoji="🧩" data-label="in the middle" onclick="pick(this)">
+      <span class="mood-glyph">🧩</span>
+      <span class="mood-name">in the middle of things</span>
+      <span class="mood-sub">catch you later</span>
+    </button>
+    <button class="mood-btn" data-key="slow" data-emoji="🌸" data-label="slow reply mode" onclick="pick(this)">
+      <span class="mood-glyph">🌸</span>
+      <span class="mood-name">slow reply mode</span>
+      <span class="mood-sub">here, just quiet</span>
+    </button>
+  </div>
+
+  <div class="note-wrap">
+    <textarea id="noteEl" placeholder="a little note — optional. 'watching something', 'tired but okay'…"></textarea>
+  </div>
+
+  <button class="send-btn" onclick="save()">update my status</button>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  // ─── CONFIG — paste your Supabase values here ───────────────────────────
+  const SUPABASE_URL  = 'YOUR_SUPABASE_URL'
+  const SUPABASE_ANON = 'YOUR_SUPABASE_ANON_KEY'
+
+  // ─── USER SETUP — who is who ─────────────────────────────────────────────
+  // Change these to your real names/initials.
+  // Each person opens the app and sees the OTHER person's status at the top.
+  // "me" is whoever is viewing. You'll share one URL but identify via a
+  // simple name prompt on first load (stored in localStorage).
+  const USERS = {
+    you:  { id: 'user_you',  name: 'You',  initials: 'Y', otherName: 'Lena',  otherId: 'user_her'  },
+    her:  { id: 'user_her',  name: 'Lena', initials: 'L', otherName: 'You',   otherId: 'user_you'  },
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON)
+
+  const PILL_CLASSES = {
+    recharge: 'pill-recharge',
+    here:     'pill-here',
+    busy:     'pill-busy',
+    slow:     'pill-slow',
+    offline:  'pill-offline',
+  }
+  const PILL_LABELS = {
+    recharge: '🌿 recharging',
+    here:     '✨ here for it',
+    busy:     '🧩 in the middle',
+    slow:     '🌸 slow reply mode',
+    offline:  '— not yet updated',
+  }
+
+  let chosen = null
+  let me = null
+
+  // ── identity ──────────────────────────────────────────────────────────────
+  function whoAmI() {
+    const stored = localStorage.getItem('pulse_identity')
+    if (stored && USERS[stored]) return stored
+    const pick = prompt('Who are you?\nType:  you  or  her')?.trim().toLowerCase()
+    if (pick && USERS[pick]) {
+      localStorage.setItem('pulse_identity', pick)
+      return pick
+    }
+    return 'you'
+  }
+
+  // ── render her card ────────────────────────────────────────────────────────
+  function renderHer(row) {
+    document.getElementById('herLoading').style.display = 'none'
+    document.getElementById('herContent').style.display = 'block'
+    document.getElementById('herAvatar').textContent = USERS[me].initials === USERS.you.initials
+      ? USERS.her.initials : USERS.you.initials
+    document.getElementById('herName').textContent = USERS[me].otherName
+
+    const key   = row?.mood || 'offline'
+    const pill  = document.getElementById('herPill')
+    pill.className = 'status-pill ' + (PILL_CLASSES[key] || 'pill-offline')
+    pill.textContent = PILL_LABELS[key] || '—'
+
+    const noteEl = document.getElementById('herNote')
+    if (row?.note) {
+      noteEl.textContent = '\u201c' + row.note + '\u201d'
+      noteEl.style.display = 'block'
+    } else {
+      noteEl.style.display = 'none'
+    }
+
+    if (row?.updated_at) {
+      const diff = Math.round((Date.now() - new Date(row.updated_at)) / 60000)
+      document.getElementById('herTime').textContent =
+        diff < 1 ? 'just now' : diff < 60 ? diff + ' min ago' : Math.round(diff/60) + 'h ago'
+    }
+  }
+
+  // ── load her status ────────────────────────────────────────────────────────
+  async function loadHer() {
+    const otherId = USERS[me].otherId
+    const { data } = await sb.from('statuses').select('*').eq('user_id', otherId).single()
+    renderHer(data)
+  }
+
+  // ── realtime subscription ──────────────────────────────────────────────────
+  function subscribeHer() {
+    const otherId = USERS[me].otherId
+    sb.channel('her-status')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'statuses',
+        filter: 'user_id=eq.' + otherId,
+      }, payload => renderHer(payload.new))
+      .subscribe()
+  }
+
+  // ── pick mood ──────────────────────────────────────────────────────────────
+  function pick(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b => {
+      b.className = 'mood-btn'
+    })
+    const k = btn.dataset.key
+    btn.classList.add('sel-' + k)
+    chosen = k
+  }
+
+  // ── save status ────────────────────────────────────────────────────────────
+  async function save() {
+    if (!chosen) { flash('pick a mood first'); return }
+    const note = document.getElementById('noteEl').value.trim()
+    const myId = USERS[me].id
+
+    const { error } = await sb.from('statuses').upsert({
+      user_id:    myId,
+      mood:       chosen,
+      note:       note || null,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'user_id' })
+
+    if (error) { flash('something went wrong — try again'); console.error(error); return }
+    flash('status updated ✓')
+    await notifyOther()
+  }
+
+  // ── push notification to other person ─────────────────────────────────────
+  async function notifyOther() {
+    // Calls a Supabase Edge Function (deploy separately — see README)
+    // If you haven't set it up yet this silently does nothing.
+    try {
+      await sb.functions.invoke('notify', {
+        body: { sender: USERS[me].name, mood: chosen }
+      })
+    } catch(e) { /* silent — push is nice to have, not required */ }
+  }
+
+  // ── react chip ────────────────────────────────────────────────────────────
+  async function sendReact(label) {
+    document.querySelectorAll('.react-chip').forEach(c => c.classList.remove('sent'))
+    event.target.classList.add('sent')
+    // Save reaction as a status note for yourself briefly
+    flash('sent: ' + label)
+  }
+
+  // ── toast ─────────────────────────────────────────────────────────────────
+  function flash(msg) {
+    const t = document.getElementById('toast')
+    t.textContent = msg
+    t.classList.add('show')
+    clearTimeout(window._toastTimer)
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 2600)
+  }
+
+  // ── iOS install banner ────────────────────────────────────────────────────
+  function maybeShowInstallBanner() {
+    const isIos = /iphone|ipad|ipod/i.test(navigator.userAgent)
+    const isStandalone = window.navigator.standalone === true
+    if (isIos && !isStandalone) {
+      document.getElementById('installBanner').classList.add('show')
+    }
+  }
+
+  // ── service worker ────────────────────────────────────────────────────────
+  async function registerSW() {
+    if ('serviceWorker' in navigator) {
+      await navigator.serviceWorker.register('/sw.js')
+    }
+  }
+
+  // ── request push permission ───────────────────────────────────────────────
+  async function requestPush() {
+    if (!('Notification' in window)) return
+    if (Notification.permission === 'default') {
+      await Notification.requestPermission()
+    }
+  }
+
+  // ── init ──────────────────────────────────────────────────────────────────
+  async function init() {
+    me = whoAmI()
+    maybeShowInstallBanner()
+    await registerSW()
+    await loadHer()
+    subscribeHer()
+    // Ask for push permission after a short delay (feels less aggressive)
+    setTimeout(requestPush, 3000)
+  }
+
+  init()
+</script>
+</body>
+</html>
