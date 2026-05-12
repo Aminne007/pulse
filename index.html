@@ -596,7 +596,7 @@
     // Calls a Supabase Edge Function (deploy separately — see README)
     // If you haven't set it up yet this silently does nothing.
     try {
-      await sb.functions.invoke('notify', {
+      await sb.functions.invoke('rapid-service', {
         body: { sender: USERS[me].name, mood: chosen }
       })
     } catch(e) { /* silent — push is nice to have, not required */ }
