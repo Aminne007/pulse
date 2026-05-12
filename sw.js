@@ -1,4 +1,4 @@
-const CACHE = 'pulse-v2'
+const CACHE = 'pulse-v3'
 
 // During development, avoid caching "/" and "/index.html"
 // because they can keep serving old Supabase config.
@@ -33,16 +33,23 @@ self.addEventListener('activate', e => {
 // ── fetch: network-first for pages, cache-first for static assets ─────────
 self.addEventListener('fetch', e => {
   const req = e.request
+  const url = new URL(req.url)
 
   // Only handle GET requests
   if (req.method !== 'GET') return
 
+  // Ignore browser-extension and other non-http(s) requests.
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return
+
+  // Only cache this app's own assets and page requests.
+  if (url.origin !== self.location.origin) return
+
   // Do not cache Supabase/API/WebSocket-related requests
   if (
-    req.url.includes('supabase.co') ||
-    req.url.includes('/rest/v1') ||
-    req.url.includes('/realtime/v1') ||
-    req.url.includes('/functions/v1')
+    url.href.includes('supabase.co') ||
+    url.pathname.includes('/rest/v1') ||
+    url.pathname.includes('/realtime/v1') ||
+    url.pathname.includes('/functions/v1')
   ) {
     e.respondWith(fetch(req))
     return
