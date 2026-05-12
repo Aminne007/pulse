@@ -28,7 +28,7 @@ self.addEventListener('fetch', e => {
 
 // ── push: show notification when status changes ───────────────────────────
 self.addEventListener('push', e => {
-  let data = { title: 'pulse', body: 'status updated', icon: '/icon-192.png' }
+  let data = { title: 'pulse', body: 'status updated' }
 
   if (e.data) {
     try { data = { ...data, ...e.data.json() } } catch {}
@@ -37,8 +37,6 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title, {
       body:    data.body,
-      icon:    data.icon,
-      badge:   data.icon,
       tag:     'pulse-status',       // replaces previous notification
       renotify: true,
       data:    { url: '/' },

@@ -7,7 +7,6 @@
   <meta name="description" content="your shared signal" />
   <meta name="theme-color" content="#ffffff" />
   <link rel="manifest" href="/manifest.json" />
-  <link rel="apple-touch-icon" href="/icon-192.png" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,6 +21,9 @@
       --radius-md: 8px;
       --radius-lg: 14px;
       --radius-xl: 20px;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+      --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -33,8 +35,15 @@
         --text: #e8e6df;
         --text2: #9a9890;
         --text3: #5a5955;
+        --shadow-sm: 0 1px 2px rgba(0,0,0,0.2);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.3);
       }
     }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    @keyframes shimmer { 0% { background-position: -1000px 0; } 100% { background-position: 1000px 0; } }
+    @keyframes slideInDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
 
     html, body {
       min-height: 100%;
@@ -48,18 +57,21 @@
       max-width: 420px;
       margin: 0 auto;
       padding: 2.5rem 1.25rem 3rem;
+      animation: fadeIn 0.4s ease-out;
     }
 
     /* ── header ── */
     .wordmark {
       text-align: center;
       margin-bottom: 2.5rem;
+      animation: slideInDown 0.5s ease-out;
     }
     .wordmark h1 {
       font-size: 28px;
       font-weight: 300;
       letter-spacing: 0.18em;
       color: var(--text);
+      margin-bottom: 8px;
     }
     .wordmark p {
       font-size: 11px;
@@ -67,6 +79,7 @@
       text-transform: uppercase;
       color: var(--text3);
       margin-top: 4px;
+      opacity: 0.8;
     }
 
     /* ── her card ── */
@@ -76,7 +89,11 @@
       padding: 1.25rem;
       margin-bottom: 2rem;
       background: var(--bg);
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.5s ease-out 0.1s both;
+      transition: box-shadow var(--transition);
     }
+    .her-card:hover { box-shadow: var(--shadow-md); }
     .her-top {
       display: flex;
       align-items: center;
@@ -103,17 +120,20 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 13px;
+      padding: 6px 14px;
       border-radius: 999px;
       font-size: 12px;
       font-weight: 500;
       margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.3s ease-out;
+      backdrop-filter: blur(4px);
     }
     .pill-recharge  { background: #E1F5EE; color: #085041; border: 0.5px solid #9FE1CB; }
     .pill-here      { background: #EEEDFE; color: #26215C; border: 0.5px solid #AFA9EC; }
     .pill-busy      { background: #FAEEDA; color: #412402; border: 0.5px solid #FAC775; }
     .pill-slow      { background: #FBEAF0; color: #4B1528; border: 0.5px solid #ED93B1; }
-    .pill-offline   { background: var(--bg2); color: var(--text3); border: 0.5px solid var(--border); }
+    .pill-offline   { background: var(--bg2); color: var(--text3); border: 0.5px solid var(--border); animation: pulse 2s infinite; }
 
     .her-note {
       font-size: 13px;
@@ -127,31 +147,51 @@
     .react-chip {
       border: 0.5px solid var(--border);
       border-radius: 999px;
-      padding: 5px 13px;
+      padding: 6px 14px;
       font-size: 12px;
       color: var(--text2);
       background: var(--bg);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all var(--transition);
       font-family: inherit;
+      box-shadow: var(--shadow-sm);
     }
-    .react-chip:hover { background: var(--bg2); color: var(--text); border-color: var(--border2); }
-    .react-chip.sent { background: #E1F5EE; color: #085041; border-color: #9FE1CB; }
+    .react-chip:hover { 
+      background: var(--bg2);
+      color: var(--text);
+      border-color: var(--border2);
+      transform: scale(1.05);
+      box-shadow: var(--shadow-md);
+    }
+    .react-chip:active { transform: scale(0.98); }
+    .react-chip.sent { 
+      background: linear-gradient(135deg, #E1F5EE 0%, #D4F0E8 100%);
+      color: #085041;
+      border-color: #9FE1CB;
+      animation: fadeIn 0.3s ease-out;
+    }
 
     /* ── divider ── */
     .divider-label {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 1.25rem;
+      margin: 1.75rem 0 1.25rem;
+      animation: fadeIn 0.5s ease-out 0.2s both;
     }
-    .divider-line { flex: 1; height: 0.5px; background: var(--border); }
+    .divider-line {
+      flex: 1;
+      height: 0.5px;
+      background: var(--border);
+      transition: background-color var(--transition);
+    }
     .divider-text {
       font-size: 10px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
       color: var(--text3);
       white-space: nowrap;
+      font-weight: 600;
     }
 
     /* ── mood grid ── */
@@ -159,7 +199,8 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      animation: fadeIn 0.5s ease-out 0.3s both;
     }
     .mood-btn {
       border: 0.5px solid var(--border);
@@ -168,71 +209,119 @@
       cursor: pointer;
       background: var(--bg);
       text-align: left;
-      transition: border-color 0.15s, background 0.15s;
+      transition: all var(--transition);
       font-family: inherit;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
     }
-    .mood-btn:hover { border-color: var(--border2); }
+    .mood-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.2) 0%, transparent 80%);
+      opacity: 0;
+      transition: opacity var(--transition);
+      pointer-events: none;
+    }
+    .mood-btn:hover {
+      border-color: var(--border2);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+    .mood-btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
     .mood-glyph { font-size: 22px; display: block; margin-bottom: 7px; }
     .mood-name { font-size: 13px; font-weight: 500; color: var(--text); display: block; }
     .mood-sub  { font-size: 11px; color: var(--text3); display: block; margin-top: 3px; line-height: 1.4; }
 
-    .mood-btn.sel-recharge { border-color: #9FE1CB; background: #E1F5EE; }
+    .mood-btn.sel-recharge { border-color: #9FE1CB; background: linear-gradient(135deg, #E1F5EE 0%, #D4F0E8 100%); box-shadow: 0 4px 12px rgba(159, 225, 203, 0.2); }
     .mood-btn.sel-recharge .mood-name { color: #085041; }
     .mood-btn.sel-recharge .mood-sub  { color: #0F6E56; }
 
-    .mood-btn.sel-here { border-color: #AFA9EC; background: #EEEDFE; }
+    .mood-btn.sel-here { border-color: #AFA9EC; background: linear-gradient(135deg, #EEEDFE 0%, #E4DFF8 100%); box-shadow: 0 4px 12px rgba(175, 169, 236, 0.2); }
     .mood-btn.sel-here .mood-name { color: #26215C; }
     .mood-btn.sel-here .mood-sub  { color: #534AB7; }
 
-    .mood-btn.sel-busy { border-color: #FAC775; background: #FAEEDA; }
+    .mood-btn.sel-busy { border-color: #FAC775; background: linear-gradient(135deg, #FAEEDA 0%, #F8E5C8 100%); box-shadow: 0 4px 12px rgba(250, 199, 117, 0.2); }
     .mood-btn.sel-busy .mood-name { color: #412402; }
     .mood-btn.sel-busy .mood-sub  { color: #854F0B; }
 
-    .mood-btn.sel-slow { border-color: #ED93B1; background: #FBEAF0; }
+    .mood-btn.sel-slow { border-color: #ED93B1; background: linear-gradient(135deg, #FBEAF0 0%, #F8E0EA 100%); box-shadow: 0 4px 12px rgba(237, 147, 177, 0.2); }
     .mood-btn.sel-slow .mood-name { color: #4B1528; }
     .mood-btn.sel-slow .mood-sub  { color: #993556; }
 
     /* ── note ── */
-    .note-wrap { margin-bottom: 1.25rem; }
+    .note-wrap { 
+      margin-bottom: 1.5rem;
+      animation: fadeIn 0.5s ease-out 0.4s both;
+    }
     textarea {
       width: 100%;
       border: 0.5px solid var(--border);
       border-radius: 14px;
-      padding: 11px 14px;
+      padding: 12px 14px;
       font-size: 13px;
       font-family: inherit;
       color: var(--text);
       background: var(--bg);
       resize: none;
-      height: 72px;
-      line-height: 1.5;
-      transition: border-color 0.15s;
+      height: 80px;
+      line-height: 1.6;
+      transition: all var(--transition);
+      box-shadow: var(--shadow-sm);
     }
     textarea::placeholder { color: var(--text3); }
-    textarea:focus { outline: none; border-color: var(--border2); }
+    textarea:focus {
+      outline: none;
+      border-color: var(--border2);
+      box-shadow: var(--shadow-md);
+      background: var(--bg2);
+    }
 
     /* ── send btn ── */
     .send-btn {
       width: 100%;
-      padding: 13px;
+      padding: 14px 16px;
       border-radius: 14px;
-      background: var(--bg);
+      background: var(--bg2);
       border: 0.5px solid var(--border2);
       font-size: 13px;
       font-weight: 500;
       color: var(--text);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: all var(--transition);
       font-family: inherit;
       letter-spacing: 0.02em;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
     }
-    .send-btn:hover { background: var(--bg2); }
-    .send-btn:active { transform: scale(0.98); }
+    .send-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transform: translateX(-100%);
+      transition: transform var(--transition);
+    }
+    .send-btn:hover {
+      background: var(--bg);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+      border-color: var(--border2);
+    }
+    .send-btn:active {
+      transform: translateY(0);
+      box-shadow: var(--shadow-sm);
+    }
 
     /* ── toast ── */
     .toast {
-      margin-top: 1rem;
-      padding: 10px 16px;
+      margin-top: 1.5rem;
+      padding: 12px 18px;
       border-radius: 12px;
       background: #E1F5EE;
       border: 0.5px solid #9FE1CB;
@@ -240,36 +329,55 @@
       color: #085041;
       text-align: center;
       opacity: 0;
-      transform: translateY(6px);
-      transition: all 0.3s;
+      transform: translateY(12px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
+      box-shadow: var(--shadow-md);
+      font-weight: 500;
     }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
 
     /* ── install banner ── */
     .install-banner {
       display: none;
       align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
+      gap: 12px;
+      padding: 14px 16px;
       border: 0.5px solid var(--border);
       border-radius: var(--radius-lg);
       background: var(--bg2);
       margin-bottom: 1.5rem;
       font-size: 12px;
       color: var(--text2);
-      line-height: 1.5;
+      line-height: 1.6;
+      box-shadow: var(--shadow-sm);
+      animation: slideInDown 0.4s ease-out;
     }
     .install-banner.show { display: flex; }
-    .install-banner strong { color: var(--text); font-weight: 500; }
+    .install-banner strong { color: var(--text); font-weight: 600; }
 
     /* ── loading overlay ── */
     .loading {
       text-align: center;
-      padding: 3rem 0;
+      padding: 2.5rem 1rem;
       font-size: 13px;
       color: var(--text3);
       letter-spacing: 0.05em;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .loading::after {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--text3);
+      margin-left: 6px;
+      animation: pulse 1.5s infinite;
     }
   </style>
 </head>
@@ -288,22 +396,22 @@
   </div>
 
   <!-- Her status -->
-  <div class="her-card" id="herCard">
-    <div class="loading" id="herLoading">checking her signal…</div>
+  <div class="her-card" id="herCard" role="region" aria-label="Their status">
+    <div class="loading" id="herLoading" role="status" aria-live="polite">checking her signal…</div>
     <div id="herContent" style="display:none;">
       <div class="her-top">
-        <div class="avatar" id="herAvatar">L</div>
+        <div class="avatar" id="herAvatar" aria-hidden="true">L</div>
         <div>
           <div class="her-name" id="herName">Lena</div>
-          <div class="her-time" id="herTime">—</div>
+          <div class="her-time" id="herTime" aria-label="Time since last update">—</div>
         </div>
       </div>
-      <span class="status-pill" id="herPill"></span>
+      <span class="status-pill" id="herPill" role="status" aria-live="polite"></span>
       <p class="her-note" id="herNote" style="display:none;"></p>
       <div class="react-row" id="reactRow">
-        <button class="react-chip" onclick="sendReact('💙 got it')">💙 got it</button>
-        <button class="react-chip" onclick="sendReact('no rush')">no rush</button>
-        <button class="react-chip" onclick="sendReact('take your time')">take your time</button>
+        <button class="react-chip" onclick="sendReact('💙 got it')" aria-label="Send: got it">💙 got it</button>
+        <button class="react-chip" onclick="sendReact('no rush')" aria-label="Send: no rush">no rush</button>
+        <button class="react-chip" onclick="sendReact('take your time')" aria-label="Send: take your time">take your time</button>
       </div>
     </div>
   </div>
@@ -315,36 +423,36 @@
     <div class="divider-line"></div>
   </div>
 
-  <div class="moods" id="moodGrid">
-    <button class="mood-btn" data-key="recharge" data-emoji="🌿" data-label="recharging" onclick="pick(this)">
-      <span class="mood-glyph">🌿</span>
+  <div class="moods" id="moodGrid" role="group" aria-label="Select your mood">
+    <button class="mood-btn" data-key="recharge" data-emoji="🌿" data-label="recharging" onclick="pick(this)" aria-label="Recharging - need quiet, low input">
+      <span class="mood-glyph" aria-hidden="true">🌿</span>
       <span class="mood-name">recharging</span>
       <span class="mood-sub">need quiet, low input</span>
     </button>
-    <button class="mood-btn" data-key="here" data-emoji="✨" data-label="here for it" onclick="pick(this)">
-      <span class="mood-glyph">✨</span>
+    <button class="mood-btn" data-key="here" data-emoji="✨" data-label="here for it" onclick="pick(this)" aria-label="Here for it - open, ready to connect">
+      <span class="mood-glyph" aria-hidden="true">✨</span>
       <span class="mood-name">here for it</span>
       <span class="mood-sub">open, ready to connect</span>
     </button>
-    <button class="mood-btn" data-key="busy" data-emoji="🧩" data-label="in the middle" onclick="pick(this)">
-      <span class="mood-glyph">🧩</span>
+    <button class="mood-btn" data-key="busy" data-emoji="🧩" data-label="in the middle" onclick="pick(this)" aria-label="In the middle of things - catch you later">
+      <span class="mood-glyph" aria-hidden="true">🧩</span>
       <span class="mood-name">in the middle of things</span>
       <span class="mood-sub">catch you later</span>
     </button>
-    <button class="mood-btn" data-key="slow" data-emoji="🌸" data-label="slow reply mode" onclick="pick(this)">
-      <span class="mood-glyph">🌸</span>
+    <button class="mood-btn" data-key="slow" data-emoji="🌸" data-label="slow reply mode" onclick="pick(this)" aria-label="Slow reply mode - here, just quiet">
+      <span class="mood-glyph" aria-hidden="true">🌸</span>
       <span class="mood-name">slow reply mode</span>
       <span class="mood-sub">here, just quiet</span>
     </button>
   </div>
 
   <div class="note-wrap">
-    <textarea id="noteEl" placeholder="a little note — optional. 'watching something', 'tired but okay'…"></textarea>
+    <textarea id="noteEl" placeholder="a little note — optional. 'watching something', 'tired but okay'…" aria-label="Add an optional note about your status"></textarea>
   </div>
 
-  <button class="send-btn" onclick="save()">update my status</button>
+  <button class="send-btn" onclick="save()" aria-label="Update and share your status">update my status</button>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -452,6 +560,8 @@
     const k = btn.dataset.key
     btn.classList.add('sel-' + k)
     chosen = k
+    // Add haptic feedback on mobile
+    if (navigator.vibrate) navigator.vibrate(10)
   }
 
   // ── save status ────────────────────────────────────────────────────────────
@@ -459,6 +569,12 @@
     if (!chosen) { flash('pick a mood first'); return }
     const note = document.getElementById('noteEl').value.trim()
     const myId = USERS[me].id
+    const btn = event.target
+
+    // Disable button during save
+    btn.disabled = true
+    const btnText = btn.textContent
+    btn.textContent = 'updating…'
 
     const { error } = await sb.from('statuses').upsert({
       user_id:    myId,
@@ -466,6 +582,9 @@
       note:       note || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' })
+
+    btn.disabled = false
+    btn.textContent = btnText
 
     if (error) { flash('something went wrong — try again'); console.error(error); return }
     flash('status updated ✓')
@@ -497,7 +616,7 @@
     t.textContent = msg
     t.classList.add('show')
     clearTimeout(window._toastTimer)
-    window._toastTimer = setTimeout(() => t.classList.remove('show'), 2600)
+    window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000)
   }
 
   // ── iOS install banner ────────────────────────────────────────────────────
